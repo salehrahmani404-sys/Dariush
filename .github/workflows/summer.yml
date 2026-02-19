@@ -1,0 +1,100 @@
+# ✖️✖️✖️ Temporarily disabled: automatic configuration updates ✖️✖️✖️
+# ------------------------------------------------------
+# Reason:
+#   Cloudflare Warp configurations are currently blocked in certain regions
+#   (notably Iran and China). The automatic update process in this workflow
+#   replaces not only endpoints, but also critical fields such as
+#   private_key, reserved, mtu, and address — which breaks connectivity
+#   when regionally restricted.
+#
+# Action:
+#   This workflow is intentionally commented out (disabled) to prevent
+#   overwriting the manually working configuration. I will manually set
+#   the following IPs/domains, Private Keys, Addresses and related parameters
+#   until the restrictions are lifted.
+#
+# Working configuration (manually applied):
+#   • IPv4 range: 162.159.192.1 — 162.159.192.20
+#   • IPv4 range: 162.159.195.1 — 162.159.195.10
+#   • IPv6 range: 2606:4700:d0::a29f:c001 — 2606:4700:d0::a29f:c014
+#   • Custom domain: wire.nscl.ir
+#
+# Important:
+#   ⚠️ Do NOT re-enable or edit this workflow to auto-replace configs
+#   while these regional blocks remain active.
+#
+# Re-enable procedure:
+#   You can still run it manually from actions, But if you want to re-enable:
+#   1. Verify that Cloudflare/Warp endpoints are accessible again
+#      from affected regions (Iran/China).
+#   2. Uncomment this section to restore the workflow:
+#      lines 39, 40 ... and 45.
+#   3. Test connectivity in staging before pushing to production.
+#
+# Disabled on: 18 October, 2025 — Freedom to Dream 🩶
+
+name: SummerTime
+
+on:
+#  push:
+#    branches: 'main'
+#    paths:
+#      - '**/summer.*'
+#      - 'sub/*.txt'
+#  schedule:
+#    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-configs:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        dummy: ['single']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r edge/requirements.txt || exit 1
+
+      - name: Run script
+        run: |
+          python edge/summer.py
+
+      - name: Commit and push if changes any
+        run: |
+          git config --local user.name "Workflow Wizard"
+          git config --local user.email "workflow.wizard@gmail.com"
+          git add sub/*.txt
+
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "WireGuard configs harvest at: $(TZ='Asia/Tehran' date '+%H:%M:%S')" \
+                       -m "The new wireguard configurations were obtained from Telegram channels, And subsequently added to the list corresponding to their respective clients." \
+                       --author="Diana-Cl <135276904+Diana-Cl@users.noreply.github.com>"
+            git push || exit 1
+          else
+            echo "No changes detected. Skipping commit and push."
+          fi

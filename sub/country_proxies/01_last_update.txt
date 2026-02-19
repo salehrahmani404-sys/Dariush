@@ -1,0 +1,18 @@
+Last updated: Mon, 16 Feb 2026 08:38:58 – IRN
+
+
+ /**
+ * Credits
+ *  - we are all REvil
+ *
+ * ProxyIP checker's
+ *  - https://proxyip.victoriacross.workers.dev
+ *  - https://checker-3j2.pages.dev
+ *  - https://telegram.me/ProxyIPChecker_Bot
+ *  - https://yumiproxy.vercel.app
+ *
+ * Stay in touch
+ *  - telegram: https://telegram.me/NiREvil_GP
+ *  - proxy land: https://github.com/NiREvil/vless/blob/main/sub/ProxyIP.md
+ */
+
